@@ -59,14 +59,14 @@ fn dot_product_vectors() {
 fn mult_tuple_and_whole_scalar() {
     let t = Vec4(2.0, 1.0, 1.0, 3.0);
     let scalar = 5.0;
-    assert_eq!(&t * &scalar, Vec4(10.0, 5.0, 5.0, 15.0));
+    assert_eq!(&t * scalar, Vec4(10.0, 5.0, 5.0, 15.0));
 }
 
 #[test]
 fn mult_tuple_and_fractional_scalar() {
     let t = Vec4(1.0, -2.0, 3.0, -4.0);
     let scalar = 0.5;
-    assert_eq!(&t * &scalar, Vec4(0.5, -1.0, 1.5, -2.0));
+    assert_eq!(&t * scalar, Vec4(0.5, -1.0, 1.5, -2.0));
 }
 
 #[test]

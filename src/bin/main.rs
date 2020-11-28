@@ -1,3 +1,5 @@
+use ray_tracer::draw_sphere::draw_sphere;
+
 fn main() {
-    println!("Hello world!");
+    draw_sphere(20, 20);
 }
