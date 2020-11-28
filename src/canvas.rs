@@ -1,4 +1,5 @@
 use crate::tuples::*;
+use std::fs;
 
 #[derive(Debug)]
 pub struct Canvas {
@@ -41,7 +42,7 @@ impl Canvas {
         row[x] = color;
     }
 
-    pub fn to_ppm(&self) -> String {
+    pub fn write_to_ppm(&self, filepath: &str) {
         let mut ppm = String::from(format!("P3\n{} {}\n255\n", self.width, self.height));
         for row in self.pixels.iter() {
             let mut row_string = String::new();
@@ -59,6 +60,8 @@ impl Canvas {
             ppm.push_str(&row_string);
             ppm.push('\n');
         }
-        ppm
+
+        fs::write(filepath, ppm)
+            .expect("Unable to write canvas to file");
     }
 }

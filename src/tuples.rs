@@ -104,11 +104,11 @@ impl<'a> ops::Sub<&'a Vec4> for &'a Vec4 {
     }
 }
 
-// &Vec4 * &f32
-impl<'a> ops::Mul<&'a f32> for &'a Vec4 {
+// &Vec4 * f32
+impl<'a> ops::Mul<f32> for &'a Vec4 {
     type Output = Vec4;
 
-    fn mul(self, scalar: &'a f32) -> Vec4 {
+    fn mul(self, scalar: f32) -> Vec4 {
         Vec4(self.0 * scalar, self.1 * scalar, self.2 * scalar, self.3 * scalar)
     }
 }
