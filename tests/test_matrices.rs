@@ -236,7 +236,54 @@ fn scaling_matrix() {
 }
 
 #[test]
-fn rotation_x() {
+fn rotation_x_test() {
     let p = point(0.0, 1.0, 0.0);
+    let half_quarter = rotation_x(45.0);
+    let full_quarter = rotation_x(90.0);
+    assert_eq!(&half_quarter * &p, point(0.0, (2.0 as f32).sqrt() / 2.0, (2.0 as f32).sqrt() / 2.0));
+    assert_eq!(&full_quarter * &p, point(0.0, 0.0, 1.0));
+
+    let inv = half_quarter.invert();
+    assert_eq!(&inv * &p, point(0.0, (2.0 as f32).sqrt() / 2.0, -(2.0 as f32).sqrt() / 2.0))
+}
+
+#[test]
+fn rotation_y_test() {
+    let p = point(0.0, 0.0, 1.0);
+    let half_quarter = rotation_y(45.0);
+    let full_quarter = rotation_y(90.0);
+    assert_eq!(&half_quarter * &p, point((2.0 as f32).sqrt() / 2.0, 0.0, (2.0 as f32).sqrt() / 2.0));
+    assert_eq!(&full_quarter * &p, point(1.0, 0.0, 0.0));
+}
+
+#[test]
+fn rotation_z_test() {
+    let p = point(0.0, 1.0, 0.0);
+    let half_quarter = rotation_z(45.0);
+    let full_quarter = rotation_z(90.0);
+    assert_eq!(&half_quarter * &p, point(-(2.0 as f32).sqrt() / 2.0, (2.0 as f32).sqrt() / 2.0, 0.0));
+    assert_eq!(&full_quarter * &p, point(-1.0, 0.0, 0.0));
+}
+
+#[test]
+fn shearing_test() {
+    let p = point(2.0, 3.0, 4.0);
+
+    let transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    assert_eq!(&transform * &p, point(5.0, 3.0, 4.0));
+
+    let transform = shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+    assert_eq!(&transform * &p, point(6.0, 3.0, 4.0));
     
+    let transform = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+    assert_eq!(&transform * &p, point(2.0, 5.0, 4.0));
+
+    let transform = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+    assert_eq!(&transform * &p, point(2.0, 7.0, 4.0));
+
+    let transform = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    assert_eq!(&transform * &p, point(2.0, 7.0, 4.0));
+
+    let transform = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+    assert_eq!(&transform * &p, point(2.0, 3.0, 7.0));
 }
