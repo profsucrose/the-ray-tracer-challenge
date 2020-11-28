@@ -1,5 +1,6 @@
 use crate::tuples::*;
 use std::ops;
+use std::f32::consts;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix4x4(pub Vec4, pub Vec4, pub Vec4, pub Vec4);
@@ -10,13 +11,51 @@ pub struct Matrix3x3(pub Vec3, pub Vec3, pub Vec3);
 #[derive(Debug, Copy, Clone)]
 pub struct Matrix2x2(pub Vec2, pub Vec2);
 
-pub fn rotation_x(radians: f32) -> Matrix4x4 {
+pub fn shearing(xy: f32, xx: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix4x4 {
+    Matrix4x4(
+        Vec4(1.0, xy, xx, 0.0),
+        Vec4(yx, 1.0, yz, 0.0),
+        Vec4(zx, zy, 1.0, 0.0),
+        Vec4(0.0, 0.0, 0.0, 1.0)
+    )
+}
+
+pub fn degrees_to_radians(degrees: f32) -> f32 {
+    (degrees / 180.0) * consts::PI
+}
+
+pub fn rotation_x(degrees: f32) -> Matrix4x4 {
+    let radians = degrees_to_radians(degrees);
     let cos = radians.cos();
     let sin = radians.sin();
     Matrix4x4(
         Vec4(1.0, 0.0, 0.0, 0.0),
         Vec4(0.0, cos, -sin, 0.0),
         Vec4(0.0, sin, cos, 0.0),
+        Vec4(0.0, 0.0, 0.0, 1.0)
+    )
+}
+
+pub fn rotation_y(degrees: f32) -> Matrix4x4 {
+    let radians = degrees_to_radians(degrees);
+    let cos = radians.cos();
+    let sin = radians.sin();
+    Matrix4x4(
+        Vec4(cos, 0.0, sin, 0.0),
+        Vec4(0.0, 1.0, 0.0, 0.0),
+        Vec4(-sin, 0.0, cos, 0.0),
+        Vec4(0.0, 0.0, 0.0, 1.0)
+    )
+}
+
+pub fn rotation_z(degrees: f32) -> Matrix4x4 {
+    let radians = degrees_to_radians(degrees);
+    let cos = radians.cos();
+    let sin = radians.sin();
+    Matrix4x4(
+        Vec4(cos, -sin, 0.0, 0.0),
+        Vec4(sin, cos, 0.0, 0.0),
+        Vec4(0.0, 0.0, 1.0, 0.0),
         Vec4(0.0, 0.0, 0.0, 1.0)
     )
 }
