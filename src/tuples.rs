@@ -41,6 +41,10 @@ pub fn fequals(f1: f32, f2: f32) -> bool {
 // Vec4 implementations
 
 impl Vec4 {
+    pub fn reflect(&self, normal: &Vec4) -> Vec4 {
+        self - &(&(normal * 2.0) * self.dot(normal))
+    }
+
     pub fn mag(&self) -> f32 {
         (self.0.powi(2) + self.1.powi(2) + self.2.powi(2) + self.3.powi(2)).sqrt()
     }
@@ -104,12 +108,21 @@ impl<'a> ops::Sub<&'a Vec4> for &'a Vec4 {
     }
 }
 
-// &Vec4 * &f32
-impl<'a> ops::Mul<&'a f32> for &'a Vec4 {
+// &Vec4 * f32
+impl<'a> ops::Mul<f32> for &'a Vec4 {
     type Output = Vec4;
 
-    fn mul(self, scalar: &'a f32) -> Vec4 {
+    fn mul(self, scalar: f32) -> Vec4 {
         Vec4(self.0 * scalar, self.1 * scalar, self.2 * scalar, self.3 * scalar)
+    }
+}
+
+// &Vec4 * &Vec4 (for colors)
+impl<'a> ops::Mul<&'a Vec4> for &'a Vec4 {
+    type Output = Vec4;
+
+    fn mul(self, other: &'a Vec4) -> Vec4 {
+        Vec4(self.0 * other.0, self.1 * other.1, self.2 * other.2, self.3 * other.3)
     }
 }
 

@@ -1,6 +1,5 @@
 use ray_tracer::tuples::*;
 use ray_tracer::matrices::*;
-
 #[test]
 fn construct_matrices() {
     let m = Matrix4x4 (
@@ -35,7 +34,6 @@ fn construct_matrices() {
     assert_eq!((m.1).1, -2.0);
     assert_eq!((m.2).2, 1.0);
 }
-
 #[test]
 fn matrix_equalities() {
     let m = Matrix4x4(
@@ -60,7 +58,6 @@ fn matrix_equalities() {
     );
     assert_ne!(&m, &m1);
 }
-
 #[test]
 fn multiply_matrices() {
     let m1 = Matrix4x4(
@@ -282,7 +279,7 @@ fn shearing_test() {{s}
     assert_eq!(&transform * &p, point(2.0, 7.0, 4.0));
 
     let transform = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-    assert_eq!(&transform * &p, point(2.0, 7.0, 4.0));
+    assert_eq!(&transform * &p, point(2.0, 3.0, 6.0));
 
     let transform = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
     assert_eq!(&transform * &p, point(2.0, 3.0, 7.0));
