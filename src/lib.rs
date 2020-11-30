@@ -5,3 +5,8 @@ pub mod matrices;
 pub mod clock;
 pub mod ray;
 pub mod draw_sphere;
+pub mod light;
+pub mod material;
+pub mod sphere;
+pub mod intersection;
+pub mod world;
