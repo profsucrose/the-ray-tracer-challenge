@@ -1,5 +1,5 @@
 use ray_tracer::draw_sphere::draw_sphere;
 
 fn main() {
-    draw_sphere(20, 20);
+    draw_sphere();
 }
