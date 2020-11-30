@@ -121,7 +121,7 @@ impl Matrix3x3 {
             result += row * self.cofactor(0, x);
         }
         result
-    }
+    }    
 }
 
 impl Matrix4x4 {
@@ -206,6 +206,30 @@ impl Matrix4x4 {
             }
         }
         Matrix4x4::from(&m_vecs)
+    }
+
+    pub fn shear(&self, xy: f32, xx: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Matrix4x4 {
+        self * &shearing(xy, xx, yx, yz, zx, zy)
+    }
+    
+    pub fn rotate_x(&self, degrees: f32) -> Matrix4x4 {
+        self * &rotation_x(degrees)
+    }
+    
+    pub fn rotate_y(&self, degrees: f32) -> Matrix4x4 {
+        self * &rotation_y(degrees)
+    }
+    
+    pub fn rotate_z(&self, degrees: f32) -> Matrix4x4 {
+        self * &rotation_z(degrees)
+    }
+    
+    pub fn translate(&self, x: f32, y: f32, z: f32) -> Matrix4x4 {
+        self * &translation(x, y, z)
+    }
+    
+    pub fn scale(&self, x: f32, y: f32, z: f32) -> Matrix4x4 {
+        self * &scaling(x, y, z)
     }
 }
 

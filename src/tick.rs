@@ -1,6 +1,5 @@
 use crate::canvas::*;
 use crate::tuples::*;
-use std::fs;
 
 struct Environment {
     gravity: Vec4,
@@ -43,5 +42,5 @@ pub fn draw_tick(width: usize, height: usize, position: &Vec4, velocity: &Vec4, 
         }
         canvas.set(x as usize, height - 1 - y as usize, color(1.0, 0.0, 0.0));
     }
-    fs::write("tick.ppm", canvas.to_ppm()).expect("Unable to write canvas to file");
+    canvas.write_to_ppm("tick.ppm");
 }
