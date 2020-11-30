@@ -266,7 +266,7 @@ fn rotation_z_test() {
 }
 
 #[test]
-fn shearing_test() {
+fn shearing_test() {{s}
     let p = point(2.0, 3.0, 4.0);
 
     let transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -276,7 +276,7 @@ fn shearing_test() {
     assert_eq!(&transform * &p, point(6.0, 3.0, 4.0));
     
     let transform = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-    assert_eq!(&transform * &p, point(2.0, 5.0, 4.0));
+    assert_eq!(&transform * &p, point(2.0, 5.0 , 4.0));
 
     let transform = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
     assert_eq!(&transform * &p, point(2.0, 7.0, 4.0));
