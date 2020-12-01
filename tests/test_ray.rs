@@ -1,10 +1,13 @@
-use ray_tracer::ray::*;
-use ray_tracer::tuples::*;
-use ray_tracer::matrices::*;
-use ray_tracer::material::*;
-use ray_tracer::sphere::*;
-use ray_tracer::light::*;
-use ray_tracer::intersection::*;
+use ray_tracer::implementations::{
+    ray::*,
+    tuples::*,
+    matrices::*,
+    material::*,
+    sphere::*,
+    shape::*,
+    light::*,
+    intersection::*
+};
 
 #[test]
 fn sphere_ray_intersections() {
@@ -135,17 +138,17 @@ fn intersect_transformed_spheres() {
 #[test]
 fn sphere_surface_normals() {
     let s = Sphere::new();
-    let n = s.normal_at(&point(1.0, 0.0, 0.0));
+    let n = s.local_normal_at(&point(1.0, 0.0, 0.0));
     assert_eq!(n, vector(1.0, 0.0, 0.0));
 
-    let n = s.normal_at(&point(0.0, 1.0, 0.0));
+    let n = s.local_normal_at(&point(0.0, 1.0, 0.0));
     assert_eq!(n, vector(0.0, 1.0, 0.0));
 
-    let n = s.normal_at(&point(0.0, 0.0, 1.0));
+    let n = s.local_normal_at(&point(0.0, 0.0, 1.0));
     assert_eq!(n, vector(0.0, 0.0, 1.0));
 
     let coord = (3.0 as f32).cbrt() / 3.0;
-    let n = s.normal_at(&point(coord, coord, coord));
+    let n = s.local_normal_at(&point(coord, coord, coord));
     assert_eq!(n, vector(coord, coord, coord).normalize());
 }
 
@@ -194,13 +197,13 @@ fn lighting_test() {
         position: point(0.0, 0.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv);
+    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(1.9, 1.9, 1.9));
 
     // light opposite to normal, eye at 45 degrees
     let eyev = vector(0.0, (2.0 as f32).sqrt() / 2.0, -(2.0 as f32).sqrt() / 2.0);
     let normalv = vector(0.0, 0.0, -1.0);
-    let result = lighting(&m, &light, &position, &eyev, &normalv);
+    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(1.0, 1.0, 1.0));
 
     // eye directly opposite to surface normal, light at 45 degrees
@@ -210,8 +213,8 @@ fn lighting_test() {
         position: vector(0.0, 10.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv);
-    assert_eq!(result, color(0.7364, 0.7364, 0.7364));
+    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    assert_eq!(result, color(0.73481, 0.73481, 0.73481));
 
     // eye and sun at opposing 45 degrees
     let eyev = vector(0.0, -(2.0 as f32).sqrt() / 2.0, -(2.0 as f32).sqrt() / 2.0);
@@ -220,8 +223,8 @@ fn lighting_test() {
         position: point(0.0, 10.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv);
-    assert_eq!(result, color(1.6364, 1.6364, 1.6364));
+    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    assert_eq!(result, color(1.6363853, 1.6363853, 1.6363853));
 
     // light behind surface
     let eyev = vector(0.0, 0.0, -1.0);
@@ -230,6 +233,40 @@ fn lighting_test() {
         position: point(0.0, 0.0, 10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv);
+    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(0.1, 0.1, 0.1));
+}
+
+#[test]
+fn prepare_computations() {
+    let r = Ray {
+        origin: point(0.0, 0.0, -5.0),
+        direction: vector(0.0, 0.0, 1.0)
+    };
+    let shape = Sphere::new();
+    let i = Intersection {
+        object: shape,
+        t: 4.0
+    };
+    let comps = i.prepare_computations(&r);
+    assert_eq!(comps.object, i.object);
+    assert_eq!(comps.point, point(0.0, 0.0, -1.0));
+    assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.normalv, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.inside, false);
+
+    // intersection inside object
+    let r = Ray {
+        origin: point(0.0, 0.0, 0.0),
+        direction: vector(0.0, 0.0, 1.0)
+    };
+    let i = Intersection {
+        object: shape,
+        t: 1.0
+    };
+    let comps = i.prepare_computations(&r);
+    assert_eq!(comps.point, point(0.0, 0.0, 1.0));
+    assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.normalv, vector(0.0, 0.0, -1.0));
+    assert_eq!(comps.inside, true);
 }

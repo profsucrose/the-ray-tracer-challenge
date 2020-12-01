@@ -1,5 +1,7 @@
-use ray_tracer::canvas::*;
-use ray_tracer::tuples::*;
+use ray_tracer::implementations::{
+    canvas::*,
+    tuples::*
+};
 
 #[test]
 fn create_canvas() {
@@ -17,8 +19,5 @@ fn create_canvas() {
 fn write_to_canvas() {
     let mut canvas = Canvas::new(10, 10);
     canvas.set(5, 5, color(1.0, 1.0, 1.0));
-    let c = &color(5000.0, 1.0, 1.0);
-    let c1 = canvas.get(2, 5);
-    println!("{}", fequals(c.0, c1.0) && fequals(c.1, c1.1) && fequals(c.2, c1.2) && fequals(c.3, c1.2));
-    assert_eq!(canvas.get(2, 5), &color(5000000.0, 1.0, 1.0));
+    assert_eq!(canvas.get(5, 5), &color(1.0, 1.0, 1.0));
 }
