@@ -6,7 +6,7 @@ use ray_tracer::implementations::{
     ray::*, 
     tuples::*, 
     world::*,
-    sphere::*
+    shape::*
 };
 
 #[test]
@@ -174,8 +174,8 @@ fn shade_hit_with_shadow() {
         intensity: color(1.0, 1.0, 1.0)
     };
 
-    let s1 = Sphere::new();
-    let mut s2 = Sphere::new();
+    let s1 = Shape::new(ShapeType::Sphere);
+    let mut s2 = Shape::new(ShapeType::Sphere);
     s2.transform = translation(0.0, 0.0, 10.0);
 
     w.shapes = vec![

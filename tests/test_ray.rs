@@ -3,7 +3,6 @@ use ray_tracer::implementations::{
     tuples::*,
     matrices::*,
     material::*,
-    sphere::*,
     shape::*,
     light::*,
     intersection::*
@@ -15,12 +14,12 @@ fn sphere_ray_intersections() {
         origin: point(0.0, 0.0, 0.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let sphere = Sphere::new();
-    let intersections = r.intersects(&sphere);
+    let s = Shape::new(ShapeType::Sphere);
+    let intersections = s.intersect(&r);
     assert_ne!(intersections.len(), 0);
     let i1 = &intersections[0];
     let i2 = &intersections[1];
-    assert_eq!(i1.object.origin, sphere.origin);
+    assert_eq!(i1.object.origin, s.origin);
     assert_eq!(i1.t, -1.0);
     assert_eq!(i2.t, 1.0);
 
@@ -28,18 +27,18 @@ fn sphere_ray_intersections() {
         origin: point(0.0, 0.0, 5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let intersections = r.intersects(&sphere);
+    let intersections = s.intersect(&r);
     assert_ne!(intersections.len(), 0);
     let i1 = &intersections[0];
     let i2 = &intersections[1];
-    assert_eq!(i1.object.origin, sphere.origin);
+    assert_eq!(i1.object.origin, s.origin);
     assert_eq!(i1.t, -6.0);
     assert_eq!(i2.t, -4.0);
 }
 
 #[test]
 fn test_hit() {
-    let s = Sphere::new();
+    let s = Shape::new(ShapeType::Sphere);
     let i1 = Intersection {
         object: s,
         t: 1.0
@@ -123,38 +122,38 @@ fn intersect_transformed_spheres() {
         origin: point(0.0, 0.0, -5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let mut s = Sphere::new();
+    let mut s = Shape::new(ShapeType::Sphere);
     s.transform = scaling(2.0, 2.0, 2.0);
-    let intersections = r.intersects(&s);
+    let intersections = s.intersect(&r);
     assert_eq!(intersections.len(), 2);
     assert_eq!(intersections[0].t, 3.0);
     assert_eq!(intersections[1].t, 7.0);
 
     s.transform = translation(5.0, 0.0, 0.0);
-    let intersections = r.intersects(&s);
+    let intersections = s.intersect(&r);
     assert_eq!(intersections.len(), 0);
 }
 
 #[test]
 fn sphere_surface_normals() {
-    let s = Sphere::new();
-    let n = s.local_normal_at(&point(1.0, 0.0, 0.0));
+    let s = Shape::new(ShapeType::Sphere);
+    let n = s.normal_at(&point(1.0, 0.0, 0.0));
     assert_eq!(n, vector(1.0, 0.0, 0.0));
 
-    let n = s.local_normal_at(&point(0.0, 1.0, 0.0));
+    let n = s.normal_at(&point(0.0, 1.0, 0.0));
     assert_eq!(n, vector(0.0, 1.0, 0.0));
 
-    let n = s.local_normal_at(&point(0.0, 0.0, 1.0));
+    let n = s.normal_at(&point(0.0, 0.0, 1.0));
     assert_eq!(n, vector(0.0, 0.0, 1.0));
 
     let coord = (3.0 as f32).cbrt() / 3.0;
-    let n = s.local_normal_at(&point(coord, coord, coord));
+    let n = s.normal_at(&point(coord, coord, coord));
     assert_eq!(n, vector(coord, coord, coord).normalize());
 }
 
 #[test]
 fn transformed_sphere_surface_normals() {
-    let mut s = Sphere::new();
+    let mut s = Shape::new(ShapeType::Sphere);
     s.transform = translation(0.0, 1.0, 0.0);
     let n = s.normal_at(&point(0.0, 1.70711, -0.70711));
     assert_eq!(n, vector(0.0, 0.70711, -0.70711));
@@ -243,7 +242,7 @@ fn prepare_computations() {
         origin: point(0.0, 0.0, -5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let shape = Sphere::new();
+    let shape = Shape::new(ShapeType::Sphere);
     let i = Intersection {
         object: shape,
         t: 4.0
