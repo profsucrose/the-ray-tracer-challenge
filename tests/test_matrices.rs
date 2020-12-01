@@ -1,5 +1,8 @@
-use ray_tracer::tuples::*;
-use ray_tracer::matrices::*;
+use ray_tracer::implementations::{
+    tuples::*,
+    matrices::*
+};
+
 #[test]
 fn construct_matrices() {
     let m = Matrix4x4 (
@@ -199,7 +202,6 @@ fn inverses() {
         Vec4(-0.07895, -0.22368, -0.05263, 0.19737),
         Vec4(-0.52256, -0.81391, -0.30075, 0.30639)
     ));
-    println!("{:#?}", &m * &inverse);
 }
 
 #[test]
@@ -263,7 +265,7 @@ fn rotation_z_test() {
 }
 
 #[test]
-fn shearing_test() {{s}
+fn shearing_test() {
     let p = point(2.0, 3.0, 4.0);
 
     let transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);

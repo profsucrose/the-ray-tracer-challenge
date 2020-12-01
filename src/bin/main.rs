@@ -1,5 +1,5 @@
-use ray_tracer::draw_sphere::draw_sphere;
+use ray_tracer::exercises::draw_scene::draw_scene;
 
 fn main() {
-    draw_sphere();
+    draw_scene();
 }

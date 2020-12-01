@@ -1,4 +1,4 @@
-use ray_tracer::tuples::*;
+use ray_tracer::implementations::tuples::*;
 
 #[test]
 fn create_point() {
