@@ -31,13 +31,13 @@ fn shade_hit() {
         origin: point(0.0, 0.0, -5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let shape = w.shapes[0];
+    let shape = &w.shapes[0];
     let i = Intersection {
         object: shape,
         t: 4.0
     };
-    let comps = i.prepare_computations(&r);
-    let c = w.shade_hit(&comps);
+    let comps = i.prepare_computations(&r, vec![i]);
+    let c = w.shade_hit(&comps, 0);
     assert_eq!(c, color(0.38066, 0.47583, 0.2855));
 
     w.light = Light {
@@ -48,13 +48,13 @@ fn shade_hit() {
         origin: point(0.0, 0.0, 0.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let shape = w.shapes[1];
+    let shape = &w.shapes[1];
     let i = Intersection {
         object: shape,
         t: 0.5
     };
-    let comps = i.prepare_computations(&r);
-    let c = w.shade_hit(&comps);
+    let comps = i.prepare_computations(&r, vec![i]);
+    let c = w.shade_hit(&comps, 0);
     assert_eq!(c, color(0.1, 0.1, 0.1));
 }
 
@@ -66,7 +66,7 @@ fn color_at() {
         origin: point(0.0, 0.0, -5.0),
         direction: vector(0.0, 1.0, 0.0)
     };
-    let c = w.color_at(&r);
+    let c = w.color_at(&r, 1);
     assert_eq!(c, color(0.0, 0.0, 0.0));
 
     // ray hits
@@ -74,7 +74,7 @@ fn color_at() {
         origin: point(0.0, 0.0, -5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
-    let c = w.color_at(&r);
+    let c = w.color_at(&r , 1);
     assert_eq!(c, color(0.38066, 0.47583, 0.2855));
 
     // ray in-between two concentric spheres and pointed at inner
@@ -87,7 +87,7 @@ fn color_at() {
         origin: point(0.0, 0.0, 0.75),
         direction: vector(0.0, 0.0, -1.0)
     };
-    let c = w.color_at(&r);
+    let c = w.color_at(&r, 1);
     assert_eq!(c, w.shapes[1].material.color);
 }
 
@@ -146,7 +146,7 @@ fn render_test() {
     let to = point(0.0, 0.0, 0.0);
     let up = vector(0.0, 1.0, 0.0);
     c.transform = view_transform(&from, &to, &up);
-    let image = c.render(&w);
+    let image = c.render(&w, 1);
     assert_eq!(image.get(5, 5), &color(0.38066, 0.47583, 0.2855));
 }
 
@@ -178,20 +178,20 @@ fn shade_hit_with_shadow() {
     let mut s2 = Shape::new(ShapeType::Sphere);
     s2.transform = translation(0.0, 0.0, 10.0);
 
-    w.shapes = vec![
-        s1,
-        s2
-    ];
-
     let r = Ray {
         origin: point(0.0, 0.0, 5.0),
         direction: vector(0.0, 0.0, 1.0)
     };
     let i = Intersection {
-        object: s2,
+        object: &s2.clone(),
         t: 4.0
     };
-    let comps = i.prepare_computations(&r);
-    let c = w.shade_hit(&comps);
+
+    w.shapes = vec![
+        s1,
+        s2
+    ];
+    let comps = i.prepare_computations(&r, vec![i]);
+    let c = w.shade_hit(&comps, 1);
     assert_eq!(c, color(0.1, 0.1, 0.1));
 }
