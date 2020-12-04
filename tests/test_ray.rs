@@ -5,7 +5,8 @@ use ray_tracer::implementations::{
     material::*,
     shape::*,
     light::*,
-    intersection::*
+    intersection::*,
+    world::*
 };
 
 #[test]
@@ -40,37 +41,37 @@ fn sphere_ray_intersections() {
 fn test_hit() {
     let s = Shape::new(ShapeType::Sphere);
     let i1 = Intersection {
-        object: s,
+        object: &s,
         t: 1.0
     };
     let i2 = Intersection {
-        object: s,
+        object: &s,
         t: 2.0
     };
-    let intersections = vec![i1, i2];
+    let intersections = vec![i1.clone(), i2];
     let i = hit(intersections);
-    assert_ne!(i, None);
+    assert_ne!(i.clone(), None);
     assert_eq!(i.unwrap(), i1);
 
     let i1 = Intersection {
-        object: s,
+        object: &s,
         t: -1.0
     };
     let i2 = Intersection {
-        object: s,
+        object: &s,
         t: 1.0
     };
-    let intersections = vec![i1, i2];
+    let intersections = vec![i1, i2.clone()];
     let i = hit(intersections);
     assert_ne!(i, None);
     assert_eq!(i.unwrap(), i2);
 
     let i1 = Intersection {
-        object: s,
+        object: &s,
         t: -2.0
     };
     let i2 = Intersection {
-        object: s,
+        object: &s,
         t: -1.0
     };
     let intersections = vec![i1, i2];
@@ -78,22 +79,22 @@ fn test_hit() {
     assert_eq!(i, None);
 
     let i1 = Intersection {
-        object: s,
+        object: &s,
         t: 5.0
     };
     let i2 = Intersection {
-        object: s,
+        object: &s,
         t: 7.0
     };
     let i3 = Intersection {
-        object: s,
+        object: &s,
         t: -3.0
     };
     let i4 = Intersection {
-        object: s,
+        object: &s,
         t: 2.0
     };
-    let intersections = vec![i1, i2, i3, i4];
+    let intersections = vec![i1, i2, i3, i4.clone()];
     let i = hit(intersections);
     assert_ne!(i, None);
     assert_eq!(i.unwrap(), i4);
@@ -189,6 +190,8 @@ fn lighting_test() {
     let m = Material::new();
     let position = point(0.0, 0.0, 0.0);
 
+    let shape = Shape::new(ShapeType::Sphere);
+
     // light and eye opposite to normal
     let eyev = vector(0.0, 0.0, -1.0);
     let normalv = vector(0.0, 0.0, -1.0);
@@ -196,13 +199,13 @@ fn lighting_test() {
         position: point(0.0, 0.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    let result = lighting(&m, &shape, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(1.9, 1.9, 1.9));
 
     // light opposite to normal, eye at 45 degrees
     let eyev = vector(0.0, (2.0 as f32).sqrt() / 2.0, -(2.0 as f32).sqrt() / 2.0);
     let normalv = vector(0.0, 0.0, -1.0);
-    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    let result = lighting(&m, &shape, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(1.0, 1.0, 1.0));
 
     // eye directly opposite to surface normal, light at 45 degrees
@@ -212,7 +215,7 @@ fn lighting_test() {
         position: vector(0.0, 10.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    let result = lighting(&m, &shape, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(0.73481, 0.73481, 0.73481));
 
     // eye and sun at opposing 45 degrees
@@ -222,7 +225,7 @@ fn lighting_test() {
         position: point(0.0, 10.0, -10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    let result = lighting(&m, &shape, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(1.6363853, 1.6363853, 1.6363853));
 
     // light behind surface
@@ -232,7 +235,7 @@ fn lighting_test() {
         position: point(0.0, 0.0, 10.0),
         intensity: color(1.0, 1.0, 1.0)
     };
-    let result = lighting(&m, &light, &position, &eyev, &normalv, false);
+    let result = lighting(&m, &shape, &light, &position, &eyev, &normalv, false);
     assert_eq!(result, color(0.1, 0.1, 0.1));
 }
 
@@ -244,10 +247,10 @@ fn prepare_computations() {
     };
     let shape = Shape::new(ShapeType::Sphere);
     let i = Intersection {
-        object: shape,
+        object: &shape,
         t: 4.0
     };
-    let comps = i.prepare_computations(&r);
+    let comps = i.prepare_computations(&r, vec![i]);
     assert_eq!(comps.object, i.object);
     assert_eq!(comps.point, point(0.0, 0.0, -1.0));
     assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
@@ -260,12 +263,109 @@ fn prepare_computations() {
         direction: vector(0.0, 0.0, 1.0)
     };
     let i = Intersection {
-        object: shape,
+        object: &shape,
         t: 1.0
     };
-    let comps = i.prepare_computations(&r);
+    let comps = i.prepare_computations(&r, vec![i]);
     assert_eq!(comps.point, point(0.0, 0.0, 1.0));
     assert_eq!(comps.eyev, vector(0.0, 0.0, -1.0));
     assert_eq!(comps.normalv, vector(0.0, 0.0, -1.0));
     assert_eq!(comps.inside, true);
+}
+
+#[test]
+fn reflect_vector_test() {
+    let shape = Shape::new(ShapeType::Plane);
+    let r = Ray {
+        origin: point(0.0, 1.0, -1.0),
+        direction: vector(0.0, -(2.0 as f32).sqrt() / 2.0, (2.0 as f32).sqrt() / 2.0)
+    };
+    let i = Intersection {
+        t: (2.0 as f32).sqrt(),
+        object: &shape
+    };
+    let comps = i.prepare_computations(&r, vec![i]);
+    assert_eq!(&comps.reflectv, &vector(0.0, (2.0 as f32).sqrt() / 2.0, (2.0 as f32).sqrt() / 2.0));
+}
+
+#[test]
+fn reflective_surface() {
+    let mut w = World::new();
+    let mut shape = Shape::new(ShapeType::Plane);
+    shape.material.reflective = 0.5;
+    shape.transform = translation(0.0, -1.0, 0.0);
+    w.shapes.push(shape.clone());
+    let r = Ray {
+        origin: point(0.0, 0.0, -3.0),
+        direction: vector(0.0, -(2.0 as f32).sqrt() / 2.0, (2.0 as f32).sqrt() / 2.0)
+    };
+    let i = Intersection {
+        t: (2.0 as f32).sqrt(),
+        object: &shape
+    };
+    let comps = i.prepare_computations(&r, vec![i]);
+    let c = w.reflected_color(&comps, 1);
+    assert_eq!(&c, &color(0.19205, 0.24006, 0.14404));
+}
+
+fn test_refraction_n1_n2_helper(index: usize, n1: f32, n2: f32) {
+    let mut a = Shape::new(ShapeType::Sphere);
+    a.transform = scaling(2.0, 2.0, 2.0);
+    a.material.refractive_index = 1.5;
+
+    let mut b = Shape::new(ShapeType::Sphere);
+    b.transform = translation(0.0, 0.0, -0.25);
+    b.material.refractive_index = 2.0;
+    
+    let mut c = Shape::new(ShapeType::Sphere);
+    c.transform = translation(0.0, 0.0, 0.25);
+    c.material.refractive_index = 2.5;
+
+    let r = Ray {
+        origin: point(0.0, 0.0, -4.0),
+        direction: vector(0.0, 0.0, 1.0)
+    };
+
+    let intersections = vec![
+        Intersection {
+            t: 2.0,
+            object: &a
+        },
+        Intersection {
+            t: 2.75,
+            object: &b
+        },
+        Intersection {
+            t: 3.25,
+            object: &c
+        },
+        Intersection {
+            t: 4.75,
+            object: &b
+        },
+        Intersection {
+            t: 5.25,
+            object: &c
+        },
+        Intersection {
+            t: 6.0,
+            object: &a
+        }        
+    ];
+
+    let intersections_head_clone = intersections[index].clone();
+    let comps = intersections_head_clone.prepare_computations(&r, intersections);
+    println!("{:?} {:?}: {:?} {:?}", n1, n2, comps.n1, comps.n2);
+    assert_eq!(comps.n1, Some(n1));
+    assert_eq!(comps.n2, Some(n2));
+}
+
+#[test]
+fn test_refraction_n1_n2() {
+    test_refraction_n1_n2_helper(0, 1.0, 1.5);
+    test_refraction_n1_n2_helper(1, 1.5, 2.0);
+    test_refraction_n1_n2_helper(2, 2.0, 2.5);
+    test_refraction_n1_n2_helper(3, 2.5, 2.5);
+    test_refraction_n1_n2_helper(4, 2.5, 1.5);
+    test_refraction_n1_n2_helper(5, 1.5, 1.0);
 }
