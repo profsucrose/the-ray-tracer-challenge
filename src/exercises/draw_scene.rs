@@ -17,12 +17,14 @@ pub fn draw_scene() {
             transform: Matrix4x4::ident()
         })
     );
+    floor.material.reflective = 0.6;
 
     let mut middle = Shape::new(ShapeType::Sphere);
     middle.transform = translation(-0.5, 1.0, 0.5);
     middle.material.color = color(0.1, 1.0, 0.5);
     middle.material.diffuse = 0.7;
     middle.material.specular = 0.3;
+    middle.material.reflective = 0.8;
     middle.material.set_pattern(
         Box::new(RingPattern {
             a: color(0.0, 1.0, 0.0), 
@@ -37,6 +39,7 @@ pub fn draw_scene() {
     right.material.color = color(0.5, 1.0, 0.1);
     right.material.diffuse = 0.7;
     right.material.specular = 0.3;
+    right.material.reflective = 0.8;
 
     let mut left = Shape::new(ShapeType::Sphere);
     left.transform = translation(-1.5, 0.33, -0.75)
@@ -44,6 +47,7 @@ pub fn draw_scene() {
     left.material.color = color(1.0, 0.8, 0.1);
     left.material.diffuse = 0.7;
     left.material.specular = 0.3;
+    left.material.reflective = 0.8;
 
     let mut world = World::new();
     world.shapes = vec![

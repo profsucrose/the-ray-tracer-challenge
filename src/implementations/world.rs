@@ -65,7 +65,7 @@ impl World {
             &comps.point, 
             &comps.eyev, 
             &comps.normalv,
-            self.get_light_intensity_with_shadow(&comps.over_point)
+            self.is_shadowed(&comps.over_point)
         );
 
         let reflected = self.reflected_color(comps, remaining);
@@ -104,11 +104,12 @@ impl World {
         }
     }
 
-    fn test_shadow_feeler(&self, light_point: Vec4, point: &Vec4) -> bool {
-        let diff = &light_point - point;
+    pub fn is_shadowed(&self, p: &Vec4) -> bool {
+        let light_point = self.light.position;
+        let diff = &light_point - p;
         let distance = diff.mag();
         let ray = Ray {
-            origin: *point,
+            origin: *p,
             direction: diff.normalize()
         };
         if let Some(hit) = hit(self.intersect(&ray)) {
@@ -117,39 +118,6 @@ impl World {
             }
         }
         false
-    }
-
-    pub fn get_light_intensity_with_shadow(&self, p: &Vec4) -> Vec4 {
-        let light_point = self.light.position;
-        let mut hit_count = 8.0;
-        if self.test_shadow_feeler(point(light_point.0 + 0.01, light_point.0 + 0.01, light_point.0 + 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 + 0.01, light_point.0 + 0.01, light_point.0 - 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 + 0.01, light_point.0 - 0.01, light_point.0 + 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 + 0.01, light_point.0 - 0.01, light_point.0 - 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 - 0.01, light_point.0 + 0.01, light_point.0 + 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 - 0.01, light_point.0 + 0.01, light_point.0 - 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 - 0.01, light_point.0 - 0.01, light_point.0 + 0.01), &p) {
-            hit_count -= 1.0;
-        }
-        if self.test_shadow_feeler(point(light_point.0 - 0.01, light_point.0 - 0.01, light_point.0 - 0.01), &p) {
-            hit_count -= 1.0;
-        }
-
-        let percentage = hit_count / 8.0;
-        println!("{}", percentage);
-        color(percentage, percentage, percentage)
     }
 
     pub fn reflected_color(&self, comps: &Computations, remaining: u32) -> Vec4 {

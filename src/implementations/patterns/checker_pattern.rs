@@ -11,7 +11,7 @@ pub struct CheckerPattern {
 impl Pattern for CheckerPattern {
     fn color_at(&self, shape: &Shape, point: &Vec4) -> Vec4 {
         let point = transform_point_to_pattern_space(self, shape, point);
-        if ((point.0.floor() + point.1.floor() + point.2.floor()) as i32).abs() % 2 == 0 {
+        if (((point.0 + 0.5).round() as i32) + ((point.1.round() + 0.5) as i32) + ((point.2 + 0.5).round() as i32)) % 2 == 0 {
             self.a
         } else {
             self.b
