@@ -45,7 +45,7 @@ pub fn draw_sphere() {
                         &point,
                         &eye,
                         &normal,
-                        false
+                        color(1.0, 1.0, 1.0)
                     );
                     canvas.set(x as usize, y as usize, color);
                 }

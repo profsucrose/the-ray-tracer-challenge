@@ -1,5 +1,5 @@
 extern crate image;
-use crate::implementations::{camera::*, light::*, matrices::*, patterns::{checker_pattern::CheckerPattern, ring_pattern::RingPattern, gradient_pattern::GradientPattern}, shape::*, tuples::*, world::*};
+use crate::implementations::{camera::*, light::*, matrices::*, patterns::{checker_pattern::CheckerPattern, ring_pattern::RingPattern}, shape::*, tuples::*, world::*};
 use image::DynamicImage;
 use std::path::Path;
 
@@ -17,7 +17,6 @@ pub fn draw_scene() {
             transform: Matrix4x4::ident()
         })
     );
-    floor.material.reflective = 0.8;
 
     let mut middle = Shape::new(ShapeType::Sphere);
     middle.transform = translation(-0.5, 1.0, 0.5);
@@ -38,7 +37,6 @@ pub fn draw_scene() {
     right.material.color = color(0.5, 1.0, 0.1);
     right.material.diffuse = 0.7;
     right.material.specular = 0.3;
-    right.material.reflective = 0.5;
 
     let mut left = Shape::new(ShapeType::Sphere);
     left.transform = translation(-1.5, 0.33, -0.75)
@@ -46,7 +44,6 @@ pub fn draw_scene() {
     left.material.color = color(1.0, 0.8, 0.1);
     left.material.diffuse = 0.7;
     left.material.specular = 0.3;
-    left.material.reflective = 0.3;
 
     let mut world = World::new();
     world.shapes = vec![

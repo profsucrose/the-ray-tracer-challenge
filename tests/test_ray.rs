@@ -309,15 +309,15 @@ fn reflective_surface() {
 }
 
 fn test_refraction_n1_n2_helper(index: usize, n1: f32, n2: f32) {
-    let mut a = Shape::new(ShapeType::Sphere);
+    let mut a = glass_sphere();
     a.transform = scaling(2.0, 2.0, 2.0);
     a.material.refractive_index = 1.5;
 
-    let mut b = Shape::new(ShapeType::Sphere);
+    let mut b = glass_sphere();
     b.transform = translation(0.0, 0.0, -0.25);
     b.material.refractive_index = 2.0;
     
-    let mut c = Shape::new(ShapeType::Sphere);
+    let mut c = glass_sphere();
     c.transform = translation(0.0, 0.0, 0.25);
     c.material.refractive_index = 2.5;
 
@@ -368,4 +368,110 @@ fn test_refraction_n1_n2() {
     test_refraction_n1_n2_helper(3, 2.5, 2.5);
     test_refraction_n1_n2_helper(4, 2.5, 1.5);
     test_refraction_n1_n2_helper(5, 1.5, 1.0);
+}
+
+#[test]
+fn under_point_test() {
+    let r = Ray {
+        origin: point(0.0, 0.0, -5.0),
+        direction: vector(0.0, 0.0, 1.0)
+    };
+    let mut shape = glass_sphere();
+    shape.transform = translation(0.0, 0.0, 1.0);
+
+    let i = Intersection {
+        t: 5.0,
+        object: &shape
+    };
+    let comps = i.prepare_computations(&r, vec![i]);
+    assert!(comps.under_point.2 > EPSILON / 2.0);
+    println!("Point: {:#?} Under-point: {:#?}", comps.point, comps.under_point);
+    assert!(comps.point.2 < comps.under_point.2);
+}
+
+#[test]
+fn refraction_when_transparent() {
+    let w = World::new();
+    let s = w.shapes.first().unwrap();
+    let r = Ray {
+        origin: point(0.0, 0.0, -5.0),
+        direction: vector(0.0, 0.0, 1.0)
+    };
+    let intersections = vec![
+        Intersection {
+            t: 4.0,
+            object: s
+        },
+        Intersection {
+            t: 6.0,
+            object: s
+        }
+    ];
+    let comps = intersections.first().unwrap().prepare_computations(&r, intersections.clone());
+    let c = w.refracted_color(&comps, 5);
+    assert_eq!(c, color(0.0, 0.0, 0.0));
+}
+
+#[test]
+fn total_internal_refraction() {
+    let w = World::new();
+    let mut s = w.shapes.first().unwrap().clone();
+    s.material.transparency = 1.0;
+    s.material.refractive_index = 1.5;
+    let r = Ray {
+        origin: point(0.0, 0.0, (2.0 as f32).sqrt() / 2.0),
+        direction: vector(0.0, 1.0, 0.0)
+    };
+    let intersections = vec![
+        Intersection {
+            t: -(2.0 as f32).sqrt() / 2.0,
+            object: &s
+        },
+        Intersection {
+            t: (2.0 as f32).sqrt() / 2.0,
+            object: &s
+        }
+    ];
+    let intersections_head = intersections.clone()[1];
+    let comps = intersections_head.prepare_computations(&r, intersections);
+    assert_eq!(w.refracted_color(&comps, 5), color(0.0, 0.0, 0.0));
+}
+
+#[test]
+fn refracted_color() {
+    let w = World::new();
+    let mut a = w.shapes[0].clone();
+    a.material.ambient = 1.0;
+    
+    let mut b = w.shapes[1].clone();
+    b.material.transparency = 1.0;
+    b.material.refractive_index = 1.5;
+
+    let r = Ray {
+        origin: point(0.0, 0.0, 0.1),
+        direction: vector(0.0, 1.0, 0.0)
+    };
+
+    let intersections = vec![
+        Intersection {
+            t: -0.9899,
+            object: &a
+        },
+        Intersection {
+            t: -0.4899,
+            object: &b
+        },
+        Intersection {
+            t: 0.4899,
+            object: &b
+        },
+        Intersection {
+            t: 0.9899,
+            object: &a
+        }
+    ];
+    let i = intersections[2].clone();
+    let comps = i.prepare_computations(&r, intersections);
+    let c = w.refracted_color(&comps, 5);
+    assert_eq!(c, color(0.0, 0.99888, 0.04725));
 }
