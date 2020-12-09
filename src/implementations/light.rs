@@ -10,7 +10,7 @@ pub struct Light {
     pub position: Vec4
 }
 
-pub fn lighting(material: &Material, shape: &Shape, light: &Light, point: &Vec4, eyev: &Vec4, normalv: &Vec4, intensity: Vec4) -> Vec4 {
+pub fn lighting(material: &Material, shape: &Shape, light: &Light, point: &Vec4, eyev: &Vec4, normalv: &Vec4, is_shadowed: bool) -> Vec4 {
     let material_color: Vec4;
     //println!("Material shape: {:?}, Material pattern: {:?}", shape.shape_type, material.pattern);
     if let Some(pattern) = &material.pattern {
@@ -18,10 +18,13 @@ pub fn lighting(material: &Material, shape: &Shape, light: &Light, point: &Vec4,
     } else {
         material_color = material.color;
     }
-    let effective_color = &material_color * &intensity;
+    let effective_color = &material_color * &light.intensity;
     let lightv = (&light.position - point).normalize();
     let ambient = &effective_color * material.ambient;
-    
+    if is_shadowed {
+        return ambient
+    }
+
     let light_dot_normal = lightv.dot(&normalv);
 
     let diffuse: Vec4;
@@ -39,7 +42,7 @@ pub fn lighting(material: &Material, shape: &Shape, light: &Light, point: &Vec4,
             specular = color(0.0, 0.0, 0.0);
         } else {
             let factor = reflect_dot_eye.powf(material.shininess);
-            specular = &(&intensity * material.specular) * factor;
+            specular = &(&light.intensity * material.specular) * factor;
         }
     }
     &(&specular + &ambient) + &diffuse
