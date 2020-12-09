@@ -6,6 +6,13 @@ use crate::implementations::{
     ray::*
 };
 
+pub fn glass_sphere() -> Shape {
+    let mut s = Shape::new(ShapeType::Sphere);
+    s.material.transparency = 1.0;
+    s.material.refractive_index = 1.5;
+    s
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ShapeType {
     Plane,

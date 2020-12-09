@@ -28,17 +28,18 @@ impl<'a> Intersection<'a> {
                 }
             }
 
-            println!("Object: {:?} Containers: {:?}", i.object, containers);
+            //println!("Object: {:?} Containers: {:?}", i.object, containers);
             if containers.contains(i.object) { 
-                println!("Removing object");
+                //println!("Removing object");
                 for (index, object) in containers.iter().enumerate() {
                     if object == i.object {
                         containers.remove(index);
-                        println!("Removed object");
+                        //println!("Removed object");
                         break;
                     }
                 }
             } else {
+                //println!("Adding object");
                 containers.push(i.object.clone());
             }
 
@@ -49,15 +50,16 @@ impl<'a> Intersection<'a> {
                     } else {
                         n2 = Some(containers.last().unwrap().material.refractive_index);
                     }
+                    break;
                 }
-
-                break;
             }
         }
 
         let ray_position = ray.position(self.t);
         let normal = self.object.normal_at(&ray_position);
-        let over_point = &ray_position + &(&normal * BUMP_EPSILON);
+        let normal_epsilon = &normal * BUMP_EPSILON;
+        let over_point = &ray_position + &normal_epsilon;
+        let under_point = &ray_position - &normal_epsilon;
         let mut comps = Computations {
             t: self.t,
             object: self.object,
@@ -66,6 +68,7 @@ impl<'a> Intersection<'a> {
             normalv: normal,
             inside: false,
             over_point,
+            under_point,
             reflectv: ray.direction.reflect(&normal),
             n1,
             n2
