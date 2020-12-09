@@ -61,7 +61,7 @@ impl Canvas {
             ppm.push('\n');
         }
 
-        fs::write(filepath, ppm)
+        fs::write(format!("output/{}", filepath), ppm)
             .expect("Unable to write canvas to file");
     }
 }
